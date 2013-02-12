@@ -1,0 +1,45 @@
+dnl Process this file with autoconf to produce a configure script.
+
+AC_PREREQ([2.68])
+
+AC_INIT([JAGS-ALCOVE],[0.1],[dominik.wabersich@gmail.com],[JAGS-ALCOVE])
+JAGS_MAJOR=3
+JAGS_MINOR=0
+AC_SUBST(JAGS_MAJOR)
+AC_SUBST(JAGS_MINOR)
+
+AC_CANONICAL_HOST
+AC_CONFIG_SRCDIR([src/alcove.cc])
+AC_CONFIG_MACRO_DIR([m4])
+AC_CONFIG_HEADERS([config.h])
+AM_INIT_AUTOMAKE
+
+dnl libtool and ltdl configuration
+LT_PREREQ(2.2.6)
+LT_CONFIG_LTDL_DIR([libltdl])
+LT_INIT([dlopen disable-static win32-dll])
+LTDL_INIT([recursive])
+
+dnl C++
+AC_PROG_CXX
+
+case "${host_os}" in
+  mingw*)
+    win=true ;;
+  *)
+    win=false ;;
+esac
+AM_CONDITIONAL(WINDOWS, test x$win = xtrue)
+
+jagsmoddir=${libdir}/JAGS/modules-${JAGS_MAJOR}
+AC_SUBST(jagsmoddir)
+
+AC_CONFIG_FILES([
+  Makefile
+  m4/Makefile
+  libltdl/Makefile
+  src/Makefile
+  src/functions/Makefile	
+  #win/Makefile
+])
+AC_OUTPUT
