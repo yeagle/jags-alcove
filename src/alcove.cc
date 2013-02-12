@@ -22,32 +22,32 @@
  *
  */
 #include <Module.h>
-#include <distributions/DWiener.h>
+#include <functions/ALCOVEfunc.h>
 
 using std::vector;
 
-namespace sam {
+namespace alcove {
 
-class SAMModule : public Module {
+class ALCOVEModule : public Module {
   public:
-    SAMModule();
-    ~SAMModule();
+    ALCOVEModule();
+    ~ALCOVEModule();
 };
 
-SAMModule::SAMModule() : Module("sam")
+ALCOVEModule::ALCOVEModule() : Module("alcove")
 {
-  //Load distributions
-  insert(new DWiener);
+  //Load functions
+  insert(new AlcoveFunc());
 }
 
-SAMModule::~SAMModule() 
+ALCOVEModule::~ALCOVEModule() 
 {
-  vector<Distribution*> const &dvec = distributions();
-  for (unsigned int i = 0; i < dvec.size(); ++i) {
-    delete dvec[i];
+  vector<Function*> const &fvec = functions();
+  for (unsigned int i = 0; i < fvec.size(); ++i) {
+    delete fvec[i];
   }
 }
 
-} // namespace sam
+} // namespace alcove
 
-sam::SAMModule _sam_module;
+alcove::ALCOVEModule _alcove_module;

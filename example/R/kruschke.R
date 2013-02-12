@@ -6,11 +6,11 @@
 # GPL 3.0+ or (cc) by-sa (http://creativecommons.org/licenses/by-sa/3.0/)
 #
 # created 2013-02-11
-# last mod 2013-02-11 23:51 DW
+# last mod 2013-02-12 00:26 DW
 #
 
 library(rjags)
-#load.module("alcove")
+load.module("alcove")
 load.module("dic")
 
 dat <- read.table("data/kruschke.txt", header=T)
@@ -45,9 +45,9 @@ mf <- textConnection("model {
                    lam_o[n],lam_a[n],c[n],phi[n],
                    q,r)
 
-    for (i in 1:I) { # trials
-      x[i] ~ dbern(prob[i])
-    } # end trials loop
+    #for (i in 1:I) { # trials
+    #  x[i] ~ dbern(prob[i])
+    #} # end trials loop
 
   } # end subjects loop
 
@@ -60,7 +60,7 @@ cat_t <- matrix(dat$true_cat[dat$cond == 1],byrow=F,ncol=40,nrow=64)
 learn <- matrix(dat$learn[dat$cond == 1],byrow=F,ncol=40,nrow=64)
 x <- dat$resp[dat$cond==1]
 
-jagsdata <- list(x=x,N=40,I=64,
+jagsdata <- list(N=1,#x=x,N=40,I=64,
                  stim=stim,cat_o=cat_o,cat_t=cat_t,learn=learn,
                  alpha=alpha,omega=omega,h=h)
 inits1 <- list(lam_a=0.1,lam_o=0.1,c=1,phi=1)
@@ -68,8 +68,9 @@ inits <- list(inits1)
 
 jmodel <- jags.model(mf, data=jagsdata, inits=inits, n.chains=1, n.adapt=0)
 jsamples <- coda.samples(jmodel,
-                         c("lam_a", "lam_o", "c", "phi"),
-                         n.iter=500, thin=1)
+                         #c("lam_a", "lam_o", "c", "phi"),
+                         c("prob"),
+                         n.iter=1, thin=1)
 
 par(mfrow=c(4,2))
 plot(jsamples[[1]], auto.layout=F)
