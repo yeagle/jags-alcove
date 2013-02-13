@@ -9,7 +9,7 @@ Using the module
 ----------------
 ::
 
-  prob[1:I] <- alcove(stim[],cat_o[],cat_t[],learn[],
+  prob[1:I] <- alcove(stim[],cat_t[],learn[],
                  alpha[],omega[,],h[,],
                  lam_o,lam_a,c,phi,
                  q,r)
@@ -21,7 +21,6 @@ Using the module
 *the data*:
 
 - stim: a vector containing the stimulus numbers
-- cat_o: a vector containing the observed categorization
 - cat_t: a vector containing the true categorization
 - learn: a vector containing 1 if feedback is given, 0 otherwise
 

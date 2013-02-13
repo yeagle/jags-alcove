@@ -9,32 +9,29 @@
 
 // arguments
 #define stim(x) args[0][x]
-#define obscat(x) args[1][x]
-#define truecat(x) args[2][x]
-#define learn(x) args[3][x]
-#define h(x) args[6][x]
-#define lam_o() args[7][0]
-#define lam_a() args[8][0]
-#define c() args[9][0]
-#define phi() args[10][0]
-#define q() args[11][0]
+#define truecat(x) args[1][x]
+#define learn(x) args[2][x]
+#define h(x) args[5][x]
+#define lam_o() args[6][0]
+#define lam_a() args[7][0]
+#define c() args[8][0]
+#define phi() args[9][0]
+#define q() args[10][0]
 #define r() args[11][0]
 // dimensions 0 = cols, 1 = rows
 #define dim_stim(x) dims[0][x]
-#define dim_obscat(x) dims[1][x]
-#define dim_truecat(x) dims[2][x]
-#define dim_learn(x) dims[3][x]
-#define dim_alpha(x) dims[4][x]
-#define dim_omega(x) dims[5][x]
-#define dim_h(x) dims[6][x]
+#define dim_truecat(x) dims[1][x]
+#define dim_learn(x) dims[2][x]
+#define dim_alpha(x) dims[3][x]
+#define dim_omega(x) dims[4][x]
+#define dim_h(x) dims[5][x]
 // number of dimensions
 #define ndim_stim() dims[0].size()
-#define ndim_obscat() dims[1].size()
-#define ndim_truecat() dims[2].size()
-#define ndim_learn() dims[3].size()
-#define ndim_alpha() dims[4].size()
-#define ndim_omega() dims[5].size()
-#define ndim_h() dims[6].size()
+#define ndim_truecat() dims[1].size()
+#define ndim_learn() dims[2].size()
+#define ndim_alpha() dims[3].size()
+#define ndim_omega() dims[4].size()
+#define ndim_h() dims[5].size()
 
 using std::vector;
 using std::min;
@@ -42,7 +39,7 @@ using std::max;
 
 namespace alcove {
 
-AlcoveFunc::AlcoveFunc() : ArrayFunction("alcove",13)
+AlcoveFunc::AlcoveFunc() : ArrayFunction("alcove",12)
 {
 }
 
