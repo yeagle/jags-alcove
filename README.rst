@@ -18,17 +18,20 @@ Using the module
       }
 
 *the data*:
+
 - stim: a vector containing the stimulus numbers
 - cat_o: a vector containing the observed categorization
 - cat_t: a vector containing the true categorization
 - learn: a vector containing 1 if feedback is given, 0 otherwise
 
 *necessary model variables*:
+
 - alpha: a vector with the initial alpha values
 - omega: a matrix with the initial omega values
 - h: a matrix with the psychological stimulus dimension for every stimulus
 
 *model parameters*:
+
 - lam_o: omega lambda learning parameter
 - lam_a: alpha lambda learning parameter
 - c: specifity parameter
