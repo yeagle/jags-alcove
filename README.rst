@@ -7,7 +7,8 @@ as follows (in a model file):
 
 Using the module
 ----------------
-.. code::
+::
+
   prob[1:I] <- alcove(stim[],cat_o[],cat_t[],learn[],
                  alpha[],omega[,],h[,],
                  lam_o,lam_a,c,phi,
