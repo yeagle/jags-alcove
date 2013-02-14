@@ -6,7 +6,7 @@
 # GPL 3.0+ or (cc) by-sa (http://creativecommons.org/licenses/by-sa/3.0/)
 #
 # created 2013-02-11
-# last mod 2013-02-12 19:43 DW
+# last mod 2013-02-13 18:04 DW
 #
 
 library(rjags)
@@ -35,7 +35,8 @@ mf <- textConnection("model {
   # priors on parameters
   lam_a ~ dunif(0,1)
   lam_o ~ dunif(0,1)
-  c ~ dunif(0.01,10)
+  #c ~ dunif(0.01,100)
+  c <- 1.662
   phi ~ dunif(0.01,10)
 
   for (n in 1:N) { # subjects
@@ -62,20 +63,25 @@ x <- matrix(dat$resp[dat$cond==1],byrow=F,ncol=40,nrow=64)
 jagsdata <- list(x=x,N=40,I=64,
                  stim=stim,cat_t=cat_t,learn=learn,
                  alpha=alpha,omega=omega,h=h)
-inits1 <- list(lam_a=0.3,lam_o=0.1,c=1,phi=1)
-inits2 <- list(lam_a=0.1,lam_o=0.3,c=1.7,phi=0.5)
-inits3 <- list(lam_a=0.2,lam_o=0.2,c=0.1,phi=1.8)
+#inits1 <- list(lam_a=0.3,lam_o=0.1,c=1,phi=1)
+#inits2 <- list(lam_a=0.1,lam_o=0.3,c=1.7,phi=0.5)
+#inits3 <- list(lam_a=0.2,lam_o=0.2,c=0.1,phi=1.8)
+inits1 <- list(lam_a=0.3,lam_o=0.1,phi=1)
+inits2 <- list(lam_a=0.1,lam_o=0.3,phi=0.5)
+inits3 <- list(lam_a=0.2,lam_o=0.2,phi=1.8)
 inits <- list(inits1,inits2,inits3)
 
 jmodel <- jags.model(mf, data=jagsdata, inits=inits, n.chains=3, n.adapt=0)
 jsamples <- coda.samples(jmodel,
                          c("lam_a", "lam_o", "c", "phi", "deviance"),
-                         n.iter=500, thin=1)
-
-par(mfrow=c(5,2))
-plot(jsamples[[1]], auto.layout=F)
+                         n.iter=100, thin=1)
 
 chain1 <- as.data.frame(jsamples[[1]])
 chain2 <- as.data.frame(jsamples[[2]])
 chain3 <- as.data.frame(jsamples[[3]])
 write.table(rbind(chain1,chain2,chain3), file="firstrun_5000s-3c.txt")
+
+par(mfrow=c(5,2))
+plot(as.mcmc.list(list(as.mcmc(chain1),as.mcmc(chain2),as.mcmc(chain3))),
+     auto.layout=F)
+

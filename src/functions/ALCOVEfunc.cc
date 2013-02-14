@@ -54,12 +54,12 @@ void AlcoveFunc::evaluate (double *value, vector<double const *> const &args,
 
   vector<double> omega((int) dim_omega(0) * (int) dim_omega(1));
   for (int i=0; i<omega.size(); ++i) {
-    omega[i] = args[5][i];
+    omega[i] = args[4][i];
   }
 
   vector<double> alpha((int) dim_alpha(0));
   for (int i=0; i<alpha.size(); ++i) {
-    alpha[i] = args[4][i];
+    alpha[i] = args[3][i];
   }
 
   for(int i=0; i<dim_stim(0); ++i) {
@@ -135,7 +135,7 @@ vector<unsigned int> AlcoveFunc::dim (vector <vector<unsigned int> > const &dims
 bool AlcoveFunc::checkParameterDim (vector <vector<unsigned int> > const &dims) const
 {
   //std::cout << "\ncheckParameterDim";
-  return true;//dims[0][1] == dims[1][1] == dims[2][1] == dims[3][1];
+  return (dims[0][0] == dims[1][0] && dims[1][0] == dims[2][0]);
 }
 
 }
