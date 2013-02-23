@@ -1,12 +1,12 @@
 #!/usr/bin/R --silent -f
 # -*- encoding: utf-8 -*-
-# kruschke.R
+# kruschke_all.R
 #
 # (c) 2013 Dominik Wabersich <dominik.wabersich [aet] gmail.com>
 # GPL 3.0+ or (cc) by-sa (http://creativecommons.org/licenses/by-sa/3.0/)
 #
-# created 2013-02-11
-# last mod 2013-02-20 10:54 DW
+# created 2013-02-18
+# last mod 2013-02-18 15:24 DW
 #
 
 library(rjags)
@@ -53,14 +53,13 @@ mf <- textConnection("model {
 
 }")
 
-# data for condition cond
-#cond <- 2
-stim <- matrix(dat$pattern[dat$cond == cond],byrow=F,ncol=40,nrow=64)
-cat_t <- matrix(dat$true_cat[dat$cond == cond],byrow=F,ncol=40,nrow=64)
-learn <- matrix(dat$learn[dat$cond == cond],byrow=F,ncol=40,nrow=64)
-x <- matrix(dat$resp[dat$cond==cond],byrow=F,ncol=40,nrow=64)
+# data for condition 1
+stim <- matrix(dat$pattern,byrow=F,ncol=40*4,nrow=64)
+cat_t <- matrix(dat$true_cat,byrow=F,ncol=40*4,nrow=64)
+learn <- matrix(dat$learn,byrow=F,ncol=40*4,nrow=64)
+x <- matrix(dat$resp,byrow=F,ncol=40*4,nrow=64)
 
-jagsdata <- list(x=x,N=40,I=64,
+jagsdata <- list(x=x,N=40*4,I=64,
                  stim=stim,cat_t=cat_t,learn=learn,
                  alpha=alpha,omega=omega,h=h)
 inits1 <- list(lam_a=0.3,lam_o=0.1,c=1,phi=1)
@@ -78,5 +77,4 @@ chain1 <- as.data.frame(jsamples[[1]])
 chain2 <- as.data.frame(jsamples[[2]])
 chain3 <- as.data.frame(jsamples[[3]])
 chain4 <- as.data.frame(jsamples[[4]])
-write.table(rbind(chain1,chain2,chain3,chain4), 
-            file=paste("aggmodel_c", cond, "_40000s-4c.txt", sep=""))
+write.table(rbind(chain1,chain2,chain3,chain4), file="aggmodel_all_40000s-4c.txt")
