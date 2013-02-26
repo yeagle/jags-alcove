@@ -6,7 +6,7 @@
 # GPL 3.0+ or (cc) by-sa (http://creativecommons.org/licenses/by-sa/3.0/)
 #
 # created 2013-02-20
-# last mod 2013-02-21 16:06 DW
+# last mod 2013-02-25 16:15 DW
 #
 
 library(rjags)
@@ -44,10 +44,12 @@ mf <- textConnection("model {
     phi_sd[k] ~ dunif(0.0001,10)
 
     for (n in m[k]:M[k]) { # subjects
-      lam_a[n] ~ dnorm(lam_a_m[k],pow(lam_a_sd[k],-2))
-      lam_o[n] ~ dnorm(lam_o_m[k],pow(lam_o_sd[k],-2))
-      c[n] ~ dnorm(c_m[k],pow(c_sd[k],-2))
-      phi[n] ~ dnorm(phi_m[k],pow(phi_sd[k],-2))
+      lam_a_tmp[n] ~ dnorm(lam_a_m[k],pow(lam_a_sd[k],-2))
+      lam_a[n] <- phi(lam_a_tmp[n])
+      lam_o_tmp[n] ~ dnorm(lam_o_m[k],pow(lam_o_sd[k],-2))
+      lam_o[n] <- phi(lam_o_tmp[n])
+      c[n] ~ dnorm(c_m[k],pow(c_sd[k],-2)) T(0,)
+      phi[n] ~ dnorm(phi_m[k],pow(phi_sd[k],-2)) T(0,)
 
       prob[1:I,n] <- alcove(stim[,n],cat_t[,n],learn[,n],
                      alpha[],omega[,],h[,],

@@ -138,4 +138,20 @@ bool AlcoveFunc::checkParameterDim (vector <vector<unsigned int> > const &dims) 
   return (dims[0][0] == dims[1][0] && dims[1][0] == dims[2][0]);
 }
 
+bool AlcoveFunc::checkParameterValue(vector<double const *> const &args, 
+    vector<vector<unsigned int> > const &dims) const
+{
+  //std::cout << "\ncheckParameterValue";
+  
+  // check lambdas, c and phi
+  if (c() < 0 || phi() < 0 
+      || lam_a() < 0 || lam_a() > 1 
+      || lam_o() < 0 || lam_o() > 1) {
+    return false; 
+  }
+  else {
+    return true;
+  }
 }
+
+} // namespace alcove

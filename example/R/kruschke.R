@@ -6,7 +6,7 @@
 # GPL 3.0+ or (cc) by-sa (http://creativecommons.org/licenses/by-sa/3.0/)
 #
 # created 2013-02-11
-# last mod 2013-02-20 10:54 DW
+# last mod 2013-02-25 16:16 DW
 #
 
 library(rjags)
@@ -54,7 +54,7 @@ mf <- textConnection("model {
 }")
 
 # data for condition cond
-#cond <- 2
+cond <- 1
 stim <- matrix(dat$pattern[dat$cond == cond],byrow=F,ncol=40,nrow=64)
 cat_t <- matrix(dat$true_cat[dat$cond == cond],byrow=F,ncol=40,nrow=64)
 learn <- matrix(dat$learn[dat$cond == cond],byrow=F,ncol=40,nrow=64)
