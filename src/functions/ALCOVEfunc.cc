@@ -2,6 +2,7 @@
 
 #include "ALCOVEfunc.h"
 
+#include <util/nainf.h>
 #include <cmath>
 #include <JRmath.h>
 
@@ -94,7 +95,8 @@ void AlcoveFunc::evaluate (double *value, vector<double const *> const &args,
     value[i] = exp(phi()*a_out[(int) truecat(i)]) / quicksum;
     quicksum = 0;
     if (value[i] <= 0.0001) value[i] = 0.0001;
-    if (value[i] >= 0.9999) value[i] = 0.9999;
+    else if (value[i] >= 0.9999) value[i] = 0.9999;
+    else if (value[i] == JAGS_NAN) value[i] = value[i-1]; //quickfix
 
     // learning part: alpha and omega values get changed
     if (learn(i) == 1) {

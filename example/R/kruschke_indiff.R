@@ -6,7 +6,7 @@
 # GPL 3.0+ or (cc) by-sa (http://creativecommons.org/licenses/by-sa/3.0/)
 #
 # created 2013-02-20
-# last mod 2013-02-25 16:15 DW
+# last mod 2013-02-25 16:55 DW
 #
 
 library(rjags)
@@ -44,21 +44,23 @@ mf <- textConnection("model {
     phi_sd[k] ~ dunif(0.0001,10)
 
     for (n in m[k]:M[k]) { # subjects
-      lam_a_tmp[n] ~ dnorm(lam_a_m[k],pow(lam_a_sd[k],-2))
-      lam_a[n] <- phi(lam_a_tmp[n])
-      lam_o_tmp[n] ~ dnorm(lam_o_m[k],pow(lam_o_sd[k],-2))
-      lam_o[n] <- phi(lam_o_tmp[n])
-      c[n] ~ dnorm(c_m[k],pow(c_sd[k],-2)) T(0,)
-      phi[n] ~ dnorm(phi_m[k],pow(phi_sd[k],-2)) T(0,)
+      #lam_a_tmp[n] ~ dnorm(lam_a_m[k],pow(lam_a_sd[k],-2))
+      #lam_a[n] <- phi((lam_a_tmp[n]-lam_a_m[k])/lam_a_sd[k])
+      #lam_o_tmp[n] ~ dnorm(lam_o_m[k],pow(lam_o_sd[k],-2))
+      #lam_o[n] <- phi((lam_o_tmp[n]-lam_o_m[k])/lam_o_sd[k])
+      lam_a[n] ~ dnorm(lam_a_m[k],pow(lam_a_sd[k],-2))T(0.0001,0.9999)
+      lam_o[n] ~ dnorm(lam_o_m[k],pow(lam_o_sd[k],-2))T(0.0001,0.9999)
+      c[n] ~ dnorm(c_m[k],pow(c_sd[k],-2))T(0.0001,)
+      phi[n] ~ dnorm(phi_m[k],pow(phi_sd[k],-2))T(0.0001,)
 
       prob[1:I,n] <- alcove(stim[,n],cat_t[,n],learn[,n],
                      alpha[],omega[,],h[,],
                      lam_o[n],lam_a[n],c[n],phi[n],
                      q,r)
 
-      for (i in 1:I) { # trials
-        x[i,n] ~ dbern(prob[i,n])
-      } # end trials loop
+      #for (i in 1:I) { # trials
+      #  x[i,n] ~ dbern(prob[i,n])
+      #} # end trials loop
 
     } # end subjects loop
   } # end condition loop
@@ -101,9 +103,9 @@ inits <- list(inits1,inits2,inits3,inits4)
 
 jmodel <- jags.model(mf, data=jagsdata, inits=inits, n.chains=4, n.adapt=0)
 jsamples <- coda.samples(jmodel,
-                         c("lam_a_m", "lam_o_m", "c_m", "phi_m",
+                         c("prob", "lam_a_m", "lam_o_m", "c_m", "phi_m",
                            "lam_a_sd", "lam_o_sd", "c_sd", "phi_sd", "deviance"),
-                         n.iter=40000, thin=1)
+                         n.iter=1, thin=1)
 
 chain1 <- as.data.frame(jsamples[[1]])
 chain2 <- as.data.frame(jsamples[[2]])
