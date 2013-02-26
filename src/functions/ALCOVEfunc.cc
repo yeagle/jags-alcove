@@ -96,7 +96,7 @@ void AlcoveFunc::evaluate (double *value, vector<double const *> const &args,
     quicksum = 0;
     if (value[i] <= 0.0001) value[i] = 0.0001;
     else if (value[i] >= 0.9999) value[i] = 0.9999;
-    else if (value[i] == JAGS_NAN) value[i] = value[i-1]; //quickfix
+    else if (jags_isnan(value[i])) value[i] = value[i-1]; //quickfix
 
     // learning part: alpha and omega values get changed
     if (learn(i) == 1) {

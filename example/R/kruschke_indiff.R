@@ -6,7 +6,7 @@
 # GPL 3.0+ or (cc) by-sa (http://creativecommons.org/licenses/by-sa/3.0/)
 #
 # created 2013-02-20
-# last mod 2013-02-25 16:55 DW
+# last mod 2013-02-25 19:31 DW
 #
 
 library(rjags)
@@ -58,9 +58,9 @@ mf <- textConnection("model {
                      lam_o[n],lam_a[n],c[n],phi[n],
                      q,r)
 
-      #for (i in 1:I) { # trials
-      #  x[i,n] ~ dbern(prob[i,n])
-      #} # end trials loop
+      for (i in 1:I) { # trials
+        x[i,n] ~ dbern(prob[i,n])
+      } # end trials loop
 
     } # end subjects loop
   } # end condition loop
@@ -103,9 +103,9 @@ inits <- list(inits1,inits2,inits3,inits4)
 
 jmodel <- jags.model(mf, data=jagsdata, inits=inits, n.chains=4, n.adapt=0)
 jsamples <- coda.samples(jmodel,
-                         c("prob", "lam_a_m", "lam_o_m", "c_m", "phi_m",
+                         c("lam_a_m", "lam_o_m", "c_m", "phi_m",
                            "lam_a_sd", "lam_o_sd", "c_sd", "phi_sd", "deviance"),
-                         n.iter=1, thin=1)
+                         n.iter=40000, thin=1)
 
 chain1 <- as.data.frame(jsamples[[1]])
 chain2 <- as.data.frame(jsamples[[2]])
