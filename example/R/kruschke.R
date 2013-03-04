@@ -6,7 +6,7 @@
 # GPL 3.0+ or (cc) by-sa (http://creativecommons.org/licenses/by-sa/3.0/)
 #
 # created 2013-02-11
-# last mod 2013-02-25 16:16 DW
+# last mod 2013-02-28 11:24 DW
 #
 
 library(rjags)
@@ -32,51 +32,49 @@ mf <- textConnection("model {
   q <- 1
   r <- 1
 
-  # priors on parameters
-  lam_a ~ dunif(0,1)
-  lam_o ~ dunif(0,1)
-  c ~ dunif(0.01,10)
-  phi ~ dunif(0.01,10)
+  for (k in 1:C) { # condition
+    # priors on parameters
+    lam_a[k] ~ dunif(0,1)
+    lam_o[k] ~ dunif(0,1)
+    c[k] ~ dunif(0.01,10)
+    phi[k] ~ dunif(0.01,10)
 
-  for (n in 1:N) { # subjects
+    for (n in m[k]:M[k]) { # subjects
 
-    prob[1:I,n] <- alcove(stim[,n],cat_t[,n],learn[,n],
-                   alpha[],omega[,],h[,],
-                   lam_o,lam_a,c,phi,
-                   q,r)
+      prob[1:I,n] <- alcove(stim[,n],cat_t[,n],learn[,n],
+                     alpha[],omega[,],h[,],
+                     lam_o[k],lam_a[k],c[k],phi[k],
+                     q,r)
 
-    for (i in 1:I) { # trials
-      x[i,n] ~ dbern(prob[i,n])
-    } # end trials loop
+      for (i in 1:I) { # trials
+        x[i,n] ~ dbern(prob[i,n])
+      } # end trials loop
 
-  } # end subjects loop
+    } # end subjects loop
+  } # end condition loop
 
 }")
 
-# data for condition cond
-cond <- 1
-stim <- matrix(dat$pattern[dat$cond == cond],byrow=F,ncol=40,nrow=64)
-cat_t <- matrix(dat$true_cat[dat$cond == cond],byrow=F,ncol=40,nrow=64)
-learn <- matrix(dat$learn[dat$cond == cond],byrow=F,ncol=40,nrow=64)
-x <- matrix(dat$resp[dat$cond==cond],byrow=F,ncol=40,nrow=64)
+# data for all conditions
+stim <- matrix(dat$pattern,byrow=F,ncol=40*4,nrow=64)
+cat_t <- matrix(dat$true_cat,byrow=F,ncol=40*4,nrow=64)
+learn <- matrix(dat$learn,byrow=F,ncol=40*4,nrow=64)
+x <- matrix(dat$resp,byrow=F,ncol=40*4,nrow=64)
 
-jagsdata <- list(x=x,N=40,I=64,
+jagsdata <- list(x=x,I=64,C=4,m=c(1,41,81,121),M=c(40,80,120,160),
                  stim=stim,cat_t=cat_t,learn=learn,
                  alpha=alpha,omega=omega,h=h)
-inits1 <- list(lam_a=0.3,lam_o=0.1,c=1,phi=1)
-inits2 <- list(lam_a=0.1,lam_o=0.3,c=1.7,phi=0.5)
-inits3 <- list(lam_a=0.2,lam_o=0.2,c=0.1,phi=1.8)
-inits4 <- list(lam_a=0.1,lam_o=0.3,c=6.1,phi=4.1)
-inits <- list(inits1,inits2,inits3,inits4)
+inits1 <- list(lam_a=c(0.3,.2,.1,.2),lam_o=c(0.1,.2,.1,.2),
+               c=c(1,1,1,1),phi=c(1,1,1,1))
+inits2 <- list(lam_a=c(0.1,.1,.1,.1),lam_o=c(0.3,.2,.2,.2),
+               c=c(1,2,1,2),phi=c(2,2,2,2))
+inits <- list(inits1,inits2)
 
-jmodel <- jags.model(mf, data=jagsdata, inits=inits, n.chains=4, n.adapt=0)
+jmodel <- jags.model(mf, data=jagsdata, inits=inits, n.chains=2, n.adapt=0)
 jsamples <- coda.samples(jmodel,
                          c("lam_a", "lam_o", "c", "phi", "deviance"),
-                         n.iter=40000, thin=1)
+                         n.iter=400, thin=1)
 
 chain1 <- as.data.frame(jsamples[[1]])
 chain2 <- as.data.frame(jsamples[[2]])
-chain3 <- as.data.frame(jsamples[[3]])
-chain4 <- as.data.frame(jsamples[[4]])
-write.table(rbind(chain1,chain2,chain3,chain4), 
-            file=paste("aggmodel_c", cond, "_40000s-4c.txt", sep=""))
+write.table(rbind(chain1,chain2), file="aggmodel_all_40000s-2c.txt")

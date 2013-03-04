@@ -6,8 +6,6 @@
 #include <cmath>
 #include <JRmath.h>
 
-#include <iostream>
-
 // arguments
 #define stim(x) args[0][x]
 #define truecat(x) args[1][x]
@@ -19,7 +17,7 @@
 #define phi() args[9][0]
 #define q() args[10][0]
 #define r() args[11][0]
-// dimensions 0 = cols, 1 = rows
+// dimensions 
 #define dim_stim(x) dims[0][x]
 #define dim_truecat(x) dims[1][x]
 #define dim_learn(x) dims[2][x]
@@ -94,11 +92,12 @@ void AlcoveFunc::evaluate (double *value, vector<double const *> const &args,
     }
     value[i] = exp(phi()*a_out[(int) truecat(i)]) / quicksum;
     quicksum = 0;
-    if (value[i] <= 0.0001) value[i] = 0.0001;
+    if (jags_isnan(value[i])) value[i] = value[i-1]; //quickfix
+    else if (value[i] <= 0.0001) value[i] = 0.0001;
     else if (value[i] >= 0.9999) value[i] = 0.9999;
-    else if (jags_isnan(value[i])) value[i] = value[i-1]; //quickfix
 
     // learning part: alpha and omega values get changed
+    // alpha and omega cannot exceed 100 to avoid nans
     if (learn(i) == 1) {
       // omega
       for(int k=0; k<(int) dim_omega(1); ++k) {
@@ -111,7 +110,7 @@ void AlcoveFunc::evaluate (double *value, vector<double const *> const &args,
       // alpha
       for(int k=0; k<(int) dim_alpha(0); ++k) {
         for (int l=0; l<(int) dim_h(0); ++l) {
-          for (int j=0; j<(int) dim_omega(0); ++j) {
+          for (int j=0; j<(int) dim_omega(1); ++j) {
             quicksum2 += (t[j]-a_out[j])*omega[(int) dim_omega(0) * j + l];
           }
           quicksum += quicksum2 * a_hid[l]*c()*fabs(h((int) dim_h(0) * k + l)-a_in[k]);
@@ -128,7 +127,6 @@ void AlcoveFunc::evaluate (double *value, vector<double const *> const &args,
 
 vector<unsigned int> AlcoveFunc::dim (vector <vector<unsigned int> > const &dims) const
 {
-  //std::cout << "\ndim";
   vector<unsigned int> ans(1);
   ans[0] = dims[0][0];
   return ans;
@@ -136,14 +134,12 @@ vector<unsigned int> AlcoveFunc::dim (vector <vector<unsigned int> > const &dims
 
 bool AlcoveFunc::checkParameterDim (vector <vector<unsigned int> > const &dims) const
 {
-  //std::cout << "\ncheckParameterDim";
   return (dims[0][0] == dims[1][0] && dims[1][0] == dims[2][0]);
 }
 
 bool AlcoveFunc::checkParameterValue(vector<double const *> const &args, 
     vector<vector<unsigned int> > const &dims) const
 {
-  //std::cout << "\ncheckParameterValue";
   
   // check lambdas, c and phi
   if (c() < 0 || phi() < 0 

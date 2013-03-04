@@ -1,0 +1,46 @@
+model {
+  q <- 1
+  r <- 1
+
+  lam_a_sd ~ dunif(0.0001,10)
+  lam_o_sd ~ dunif(0.0001,10)
+  c_sd ~ dunif(0.0001,10)
+  phi_sd ~ dunif(0.0001,10)
+  lam_a_pr <- pow(lam_a_sd,-2)
+  lam_o_pr <- pow(lam_o_sd,-2)
+  c_pr <- pow(c_sd,-2)
+  phi_pr <- pow(phi_sd,-2)
+
+  for (k in 1:C) { # condition 1-4
+    # priors on parameters
+    #lam_a[k] ~ dunif(0,1)
+    #lam_o[k] ~ dunif(0,1)
+    #c[k] ~ dunif(0.01,10)
+    #phi[k] ~ dunif(0.01,10)
+
+    lam_a_m[k] ~ dnorm(0,.001)
+    lam_o_m[k] ~ dnorm(0,.001)
+    c_m[k] ~ dunif(0.01,10)
+    phi_m[k] ~ dunif(0.01,10)
+  } # end condition loop
+
+  for (n in 1:N) { # subjects
+    lam_a_tmp[n] ~ dnorm(lam_a_m[cond[n]],lam_a_pr)
+    lam_a[n] <- phi(lam_a_tmp[n])
+    lam_o_tmp[n] ~ dnorm(lam_o_m[cond[n]],lam_o_pr)
+    lam_o[n] <- phi(lam_o_tmp[n])
+    c[n] ~ dnorm(c_m[cond[n]],c_pr)T(0.0001,10)
+    phi[n] ~ dnorm(phi_m[cond[n]],phi_pr)T(0.0001,10)
+
+    prob[1:I,n] <- alcove(stim[,n],cat_t[,n],learn[,n],
+                   alpha[],omega[,],h[,],
+                   lam_o[n],lam_a[n],c[n],phi[n],
+                   q,r)
+
+    for (i in 1:I) { # trials
+      x[i,n] ~ dbern(prob[i,n])
+    } # end trials loop
+
+  } # end subjects loop
+
+}
