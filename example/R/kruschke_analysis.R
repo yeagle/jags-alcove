@@ -6,7 +6,7 @@
 # GPL 3.0+ or (cc) by-sa (http://creativecommons.org/licenses/by-sa/3.0/)
 #
 # created 2013-02-13
-# last mod 2013-02-20 14:03 DW
+# last mod 2013-03-06 12:20 DW
 #
 
 # used libs
@@ -49,7 +49,9 @@ for (i in 1:64) {
 ### Modelling
 # read data and chains
 dat <- read.table("data/kruschke.txt", header=T)
-chains <- read.table("chains/aggmodel_all_40000s-4c.txt", header=T)
+chains <- read.table("chains/aggmodel_allhicond_300000s-4c.txt", header=T)
+#chains <- read.table("chains/aggmodel_allhicond_40000s-4c.txt", header=T)
+#chains <- read.table("chains/aggmodel_all_40000s-4c.txt", header=T)
 
 ## chain analysis
 nsamp <- length(chains[,1])/4
@@ -59,16 +61,8 @@ chain3 <- chains[(1+nsamp*2):(nsamp*3),]
 chain4 <- chains[(1+nsamp*3):(nsamp*4),]
 mcmcchains <- as.mcmc.list(list(as.mcmc(chain1),as.mcmc(chain2),as.mcmc(chain3),as.mcmc(chain4)))
 par(mfrow=c(5,2))
-plot(mcmcchains,
-     auto.layout=F)
-BURN <- 5000
-N <- 40000
-THIN <- 50
-iid_chains <- rbind(
-              as.data.frame(mcmcchains[seq(BURN,N,THIN),][[1]]),
-              as.data.frame(mcmcchains[seq(BURN,N,THIN),][[2]]),
-              as.data.frame(mcmcchains[seq(BURN,N,THIN),][[3]]))
-              #as.data.frame(mcmcchains[seq(BURN,N,THIN),][[4]]))
+plot(mcmcchains, auto.layout=F)
+iid_chains <- window(mcmcchains, 100000,300000,2000)
 
 ## by trial
 # model prediction

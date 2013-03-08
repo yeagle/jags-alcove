@@ -6,12 +6,15 @@
 # GPL 3.0+ or (cc) by-sa (http://creativecommons.org/licenses/by-sa/3.0/)
 #
 # created 2013-02-20
-# last mod 2013-03-04 11:29 DW
+# last mod 2013-03-08 10:07 DW
 #
 
+# libraries
 library(rjags)
 load.module("alcove")
 load.module("dic")
+# for parallel sampling
+library(doMC); registerDoMC()
 
 dat <- read.table("data/kruschke.txt", header=T)
 
@@ -50,30 +53,34 @@ jagsdata <- list(x=x,I=64,C=4,N=160,
                  cond=cond,
                  stim=stim,cat_t=cat_t,learn=learn,
                  alpha=alpha,omega=omega,h=h)
-inits1 <- list(lam_a_m=c(0.3,.3,.3,.3),lam_o_m=c(0.1,.1,.1,.1),
-               c_m=c(1,1,1,1),phi_m=c(1,1,1,1),
-               lam_a_sd=1,lam_o_sd=1,
-               c_sd=1,phi_sd=1)
-inits2 <- list(lam_a_m=c(0.2,.1,.1,.3),lam_o_m=c(0.2,.1,.3,.5),
-               c_m=c(2.2,1.2,1.6,2),phi_m=c(1.1,1.1,1.1,1.2),
-               lam_a_sd=1,lam_o_sd=1,
-               c_sd=1,phi_sd=1)
-inits3 <- list(lam_a_m=c(0.1,.1,.2,.4),lam_o_m=c(0.05,.1,.2,.1),
-               c_m=c(1.4,1.2,1.2,1.2),phi_m=c(1.2,1.2,1.2,1.2),
-               lam_a_sd=1,lam_o_sd=1,
-               c_sd=1,phi_sd=1)
-inits4 <- list(lam_a_m=c(0.1,0.2,0.3,0.4),lam_o_m=c(0.4,0.3,0.2,0.1),
-               c_m=c(1,1.3,1,1.3),phi_m=c(1,1.2,1,1),
-               lam_a_sd=1,lam_o_sd=1,
-               c_sd=1,phi_sd=1)
+seeds <- parallel.seeds("base::BaseRNG", 4)
+inits1 <- c(list(lam_a_m=rep(0.5972160,4),lam_o_m=rep(0.2115981,4),
+               c_m=rep(1.8905719,4),phi_m=rep(1.3337367,4),
+               lam_a_sd=0.3121852,lam_o_sd=0.2129174,
+               c_sd=0.6060517,phi_sd=0.3606385),seeds[[1]])
+inits2 <- c(list(lam_a_m=jitter(inits1$lam_a_m),lam_o_m=jitter(inits1$lam_o_m),
+               c_m=jitter(inits1$c_m),phi_m=jitter(inits1$phi_m),
+               lam_a_sd=jitter(inits1$lam_a_sd),lam_o_sd=jitter(inits1$lam_o_sd),
+               c_sd=jitter(inits1$c_sd),phi_sd=jitter(inits1$phi_sd)),seeds[[2]])
+inits3 <- c(list(lam_a_m=jitter(inits1$lam_a_m),lam_o_m=jitter(inits1$lam_o_m),
+               c_m=jitter(inits1$c_m),phi_m=jitter(inits1$phi_m),
+               lam_a_sd=jitter(inits1$lam_a_sd),lam_o_sd=jitter(inits1$lam_o_sd),
+               c_sd=jitter(inits1$c_sd),phi_sd=jitter(inits1$phi_sd)),seeds[[2]])
+inits4 <- c(list(lam_a_m=jitter(inits1$lam_a_m),lam_o_m=jitter(inits1$lam_o_m),
+               c_m=jitter(inits1$c_m),phi_m=jitter(inits1$phi_m),
+               lam_a_sd=jitter(inits1$lam_a_sd),lam_o_sd=jitter(inits1$lam_o_sd),
+               c_sd=jitter(inits1$c_sd),phi_sd=jitter(inits1$phi_sd)),seeds[[2]])
 inits <- list(inits1,inits2,inits3,inits4)
 
-jmodel <- jags.model(mf, data=jagsdata, inits=inits, n.chains=4, n.adapt=0)
-jsamples <- coda.samples(jmodel,
-                         c("lam_a_m", "lam_o_m", "c_m", "phi_m",
-                           "lam_a_sd", "lam_o_sd", "c_sd", "phi_sd",
-                           "deviance"),
-                         n.iter=1000, thin=1)
+
+jsamples <- foreach(i=1:4) %dopar% {
+  j.model <- jags.model(mf, data=jagsdata, inits=inits[[i]], n.chains=1, n.adapt=0)
+  j.samples <- coda.samples(j.model, c("lam_a_m", "lam_o_m", "c_m", "phi_m",
+                                      "lam_a_sd", "lam_o_sd", "c_sd", "phi_sd",
+                                      "deviance"),
+                            n.iter=40000, thin=1)
+  return(j.samples[[1]])
+}
 
 chain1 <- as.data.frame(jsamples[[1]])
 chain2 <- as.data.frame(jsamples[[2]])

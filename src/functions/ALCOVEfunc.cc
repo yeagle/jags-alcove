@@ -45,6 +45,7 @@ AlcoveFunc::AlcoveFunc() : ArrayFunction("alcove",12)
 void AlcoveFunc::evaluate (double *value, vector<double const *> const &args, 
     vector<vector<unsigned int> > const &dims) const
 {
+  int was_nan=0;
   vector<double> a_in((int) dim_h(1));
   vector<double> a_hid((int) dim_h(0));
   vector<double> a_out((int) dim_omega(1));
@@ -92,7 +93,10 @@ void AlcoveFunc::evaluate (double *value, vector<double const *> const &args,
     }
     value[i] = exp(phi()*a_out[(int) truecat(i)]) / quicksum;
     quicksum = 0;
-    if (jags_isnan(value[i])) value[i] = value[i-1]; //quickfix
+    if (jags_isnan(value[i])) {
+      value[i] = value[i-1]; //quickfix
+      was_nan = 1;
+    }
     else if (value[i] <= 0.0001) value[i] = 0.0001;
     else if (value[i] >= 0.9999) value[i] = 0.9999;
 
@@ -122,6 +126,14 @@ void AlcoveFunc::evaluate (double *value, vector<double const *> const &args,
       }
     }
 
+  }
+  if (was_nan) {
+    for(int i=0; i<dim_stim(0); ++i) {
+      // if nans were produced, set all the values to
+      // unreasonable values, which in the end produce a low likelihood 
+      // (in theory)
+      value[i] = 0.00001;
+    }
   }
 }
 
