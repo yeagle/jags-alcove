@@ -146,7 +146,10 @@ vector<unsigned int> AlcoveFunc::dim (vector <vector<unsigned int> > const &dims
 
 bool AlcoveFunc::checkParameterDim (vector <vector<unsigned int> > const &dims) const
 {
-  return (dims[0][0] == dims[1][0] && dims[1][0] == dims[2][0]);
+  // line1: first 3 vectors have to be of the same length
+  // line2: every hidden node needs a connection to the category nodes
+  return (dims[0][0] == dims[1][0] && dims[1][0] == dims[2][0] &&  
+          dim_omega(0) == dim_h(0)); 
 }
 
 bool AlcoveFunc::checkParameterValue(vector<double const *> const &args, 
