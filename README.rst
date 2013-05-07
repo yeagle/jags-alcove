@@ -20,7 +20,9 @@ Using the module
 
 *the data*:
 
-- stim: a vector containing the stimulus numbers
+- stim: a vector containing the stimulus numbers, corresponding to the
+  stimulus dimensions in the h matrix (1 being the dimensions in the 
+  first row in the 'h' matrix)
 - cat_t: a vector containing the true categorization
 - learn: a vector containing 1 if feedback is given, 0 otherwise
 
