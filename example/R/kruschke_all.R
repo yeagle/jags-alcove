@@ -6,12 +6,15 @@
 # GPL 3.0+ or (cc) by-sa (http://creativecommons.org/licenses/by-sa/3.0/)
 #
 # created 2013-02-18
-# last mod 2013-02-18 15:24 DW
+# last mod 2013-03-11 18:13 DW
 #
 
+# libs
 library(rjags)
 load.module("alcove")
 load.module("dic")
+# for parallel sampling
+library(doMC); registerDoMC()
 
 dat <- read.table("data/kruschke.txt", header=T)
 
@@ -21,7 +24,7 @@ for (i in 1:length(dat$resp)) {
 }
 
 alpha <- c(0.5,0.5)
-omega <- matrix(rep(0.125,16), nrow=8, ncol=2)
+omega <- matrix(rep(0,16), nrow=8, ncol=2)
 x <- c(-1.5712, -0.51625, 0.6588, 1.4878)
 y <- c(-1.5163, -0.51625, 0.43575, 1.5968)
 h <- matrix(c(c(x[4], y[2]), c(x[4], y[3]), c(x[3], y[1]), c(x[3], y[4]), 
@@ -53,7 +56,7 @@ mf <- textConnection("model {
 
 }")
 
-# data for condition 1
+# data
 stim <- matrix(dat$pattern,byrow=F,ncol=40*4,nrow=64)
 cat_t <- matrix(dat$true_cat,byrow=F,ncol=40*4,nrow=64)
 learn <- matrix(dat$learn,byrow=F,ncol=40*4,nrow=64)
@@ -62,16 +65,21 @@ x <- matrix(dat$resp,byrow=F,ncol=40*4,nrow=64)
 jagsdata <- list(x=x,N=40*4,I=64,
                  stim=stim,cat_t=cat_t,learn=learn,
                  alpha=alpha,omega=omega,h=h)
-inits1 <- list(lam_a=0.3,lam_o=0.1,c=1,phi=1)
-inits2 <- list(lam_a=0.1,lam_o=0.3,c=1.7,phi=0.5)
-inits3 <- list(lam_a=0.2,lam_o=0.2,c=0.1,phi=1.8)
-inits4 <- list(lam_a=0.1,lam_o=0.3,c=6.1,phi=4.1)
+seeds <- parallel.seeds("base::BaseRNG", 4)
+inits1 <- c(list(lam_a=0.3,lam_o=0.1,c=1,phi=1), seeds[[1]])
+inits2 <- c(list(lam_a=0.1,lam_o=0.3,c=1.7,phi=0.5), seeds[[2]])
+inits3 <- c(list(lam_a=0.2,lam_o=0.2,c=0.1,phi=1.8), seeds[[3]])
+inits4 <- c(list(lam_a=0.1,lam_o=0.3,c=6.1,phi=4.1), seeds[[4]])
 inits <- list(inits1,inits2,inits3,inits4)
 
-jmodel <- jags.model(mf, data=jagsdata, inits=inits, n.chains=4, n.adapt=0)
-jsamples <- coda.samples(jmodel,
-                         c("lam_a", "lam_o", "c", "phi", "deviance"),
-                         n.iter=40000, thin=1)
+jsamples <- foreach(i=1:4) %dopar% {
+  j.model <- jags.model(mf, data=jagsdata, inits=inits[[i]], n.chains=1, n.adapt=0)
+  j.samples <- coda.samples(j.model,
+                            c("lam_a", "lam_o", "c", "phi", "deviance"),
+                            n.iter=40000, thin=1)
+  return(j.samples[[1]])
+}
+
 
 chain1 <- as.data.frame(jsamples[[1]])
 chain2 <- as.data.frame(jsamples[[2]])

@@ -6,7 +6,7 @@
 # GPL 3.0+ or (cc) by-sa (http://creativecommons.org/licenses/by-sa/3.0/)
 #
 # created 2013-02-11
-# last mod 2013-02-28 11:24 DW
+# last mod 2013-03-11 18:05 DW
 #
 
 library(rjags)
@@ -21,7 +21,7 @@ for (i in 1:length(dat$resp)) {
 }
 
 alpha <- c(0.5,0.5)
-omega <- matrix(rep(0.125,16), nrow=8, ncol=2)
+omega <- matrix(rep(0,16), nrow=8, ncol=2)
 x <- c(-1.5712, -0.51625, 0.6588, 1.4878)
 y <- c(-1.5163, -0.51625, 0.43575, 1.5968)
 h <- matrix(c(c(x[4], y[2]), c(x[4], y[3]), c(x[3], y[1]), c(x[3], y[4]), 

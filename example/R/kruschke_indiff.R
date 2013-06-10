@@ -6,7 +6,7 @@
 # GPL 3.0+ or (cc) by-sa (http://creativecommons.org/licenses/by-sa/3.0/)
 #
 # created 2013-02-20
-# last mod 2013-03-08 10:07 DW
+# last mod 2013-03-11 18:12 DW
 #
 
 # libraries
@@ -25,7 +25,7 @@ for (i in 1:length(dat$resp)) {
 
 #alpha <- c(0.5,0.5)
 #omega <- matrix(rep(0.125,16), nrow=8, ncol=2)
-alpha <- c(0,0)
+alpha <- c(.5,.5)
 omega <- matrix(0,8,2)
 x <- c(-1.5712, -0.51625, 0.6588, 1.4878)
 y <- c(-1.5163, -0.51625, 0.43575, 1.5968)
@@ -65,11 +65,11 @@ inits2 <- c(list(lam_a_m=jitter(inits1$lam_a_m),lam_o_m=jitter(inits1$lam_o_m),
 inits3 <- c(list(lam_a_m=jitter(inits1$lam_a_m),lam_o_m=jitter(inits1$lam_o_m),
                c_m=jitter(inits1$c_m),phi_m=jitter(inits1$phi_m),
                lam_a_sd=jitter(inits1$lam_a_sd),lam_o_sd=jitter(inits1$lam_o_sd),
-               c_sd=jitter(inits1$c_sd),phi_sd=jitter(inits1$phi_sd)),seeds[[2]])
+               c_sd=jitter(inits1$c_sd),phi_sd=jitter(inits1$phi_sd)),seeds[[3]])
 inits4 <- c(list(lam_a_m=jitter(inits1$lam_a_m),lam_o_m=jitter(inits1$lam_o_m),
                c_m=jitter(inits1$c_m),phi_m=jitter(inits1$phi_m),
                lam_a_sd=jitter(inits1$lam_a_sd),lam_o_sd=jitter(inits1$lam_o_sd),
-               c_sd=jitter(inits1$c_sd),phi_sd=jitter(inits1$phi_sd)),seeds[[2]])
+               c_sd=jitter(inits1$c_sd),phi_sd=jitter(inits1$phi_sd)),seeds[[4]])
 inits <- list(inits1,inits2,inits3,inits4)
 
 
