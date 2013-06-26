@@ -158,8 +158,8 @@ bool AlcoveFunc::checkParameterValue(vector<double const *> const &args,
   
   // check lambdas, c and phi
   if (c() < 0 || phi() < 0 
-      || lam_a() < 0 || lam_a() > 1 
-      || lam_o() < 0 || lam_o() > 1) {
+      || lam_a() < 0 //|| lam_a() > 1 
+      || lam_o() < 0 /*|| lam_o() > 1*/) {
     return false; 
   }
   else {
