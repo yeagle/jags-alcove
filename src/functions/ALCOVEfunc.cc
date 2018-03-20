@@ -36,6 +36,7 @@ using std::vector;
 using std::min;
 using std::max;
 
+namespace jags {
 namespace alcove {
 
 AlcoveFunc::AlcoveFunc() : ArrayFunction("alcove",12)
@@ -137,7 +138,8 @@ void AlcoveFunc::evaluate (double *value, vector<double const *> const &args,
   }
 }
 
-vector<unsigned int> AlcoveFunc::dim (vector <vector<unsigned int> > const &dims) const
+vector<unsigned int> AlcoveFunc::dim (vector <vector<unsigned int> > const &dims,
+    std::vector <double const *> const &values) const
 {
   vector<unsigned int> ans(1);
   ans[0] = dims[0][0];
@@ -168,3 +170,4 @@ bool AlcoveFunc::checkParameterValue(vector<double const *> const &args,
 }
 
 } // namespace alcove
+} // namespace jags

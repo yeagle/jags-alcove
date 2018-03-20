@@ -1,8 +1,9 @@
-#include <Module.h>
+#include <module/Module.h>
 #include <functions/ALCOVEfunc.h>
 
 using std::vector;
 
+namespace jags {
 namespace alcove {
 
 class ALCOVEModule : public Module {
@@ -26,5 +27,6 @@ ALCOVEModule::~ALCOVEModule()
 }
 
 } // namespace alcove
+} // namespace jags
 
-alcove::ALCOVEModule _alcove_module;
+jags::alcove::ALCOVEModule _alcove_module;
